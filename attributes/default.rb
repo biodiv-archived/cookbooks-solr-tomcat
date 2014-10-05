@@ -2,7 +2,7 @@ include_attribute "tomcat"
 
 expand!
 
-default[:solr][:version]   = "4.10.0"
+default[:solr][:version]   = "4.10.1"
 default[:solr][:workingDir] = "/usr/local/src"
 
 if solr.version.split('.').first.to_i >= 4
