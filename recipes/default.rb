@@ -43,11 +43,13 @@ end
 bash "Add required solr lib and deps to the war file" do
   code <<-EOH
   mkdir -p /tmp/solr-temp/WEB-INF/lib
+  mkdir -p /tmp/solr-temp/WEB-INF/classes
   cd /tmp/solr-temp
   cp #{node.solr.extracted}/example/lib/ext/* WEB-INF/lib
   cp #{node.solr.extracted}/dist/solr-dataimporthandler-* WEB-INF/lib
-  cp #{node.solr.extracted}/log4j.properties WEB-INF/lib
+  cp #{node.solr.extracted}/log4j.properties WEB-INF/classes
   jar -uvf #{node.solr.war} WEB-INF/lib 
+  jar -uvf #{node.solr.war} WEB-INF/classes 
   chmod +r #{node.solr.war}
   cd -
   rm -rf /tmp/solr-temp
