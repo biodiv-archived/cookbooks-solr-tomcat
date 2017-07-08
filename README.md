@@ -7,19 +7,17 @@ Requirements
 
 ## Platforms
 
-* Ubuntu 14.04 LTS
+* Ubuntu 16.04 LTS
 
 Tested on:
 
-* Ubuntu 14.04 LTS
+* Ubuntu 16.04 LTS
 
 
 ### Cookbooks
 Requires the following cookbooks
 
-* `tomcat`
-* `application_java`
-
+* `cerner_tomcat`
 
 Attributes
 ============
@@ -31,8 +29,9 @@ Attributes
 * `node[:solr][:home]` - The folder where solr war would be hosted for tomcat to read.
 * `node[:solr][:context_path]` - The name of the solr context when deployed to tomcat.
 * `node[:solr][:data]` - Location where solr would store data files.
+* `node[:solr][:data]` - Location where solr would store data files.
 
-The default values for these attributes can be found in `attributes/default.rb`
+The default values for these attributes can be found  [here](attributes/default.rb).
 
 
 Recipes
@@ -44,7 +43,7 @@ Chef Solo Note
 
 You can install solr on tomcat as follows.
 
-Create a file solr.json with the following contents. 
+Create a file solr.json with the following contents.
 
     {
         "solr-tomcat": {

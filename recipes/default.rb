@@ -17,11 +17,7 @@
 # limitations under the License.
 #
 
-
-include_recipe "tomcat"
-include_recipe "application"
-
-tomcatService = "tomcat#{node['tomcat']['base_version']}"
+include_recipe "java"
 
 remote_file node.solr.download do
   source   node.solr.link
@@ -34,12 +30,6 @@ bash 'unpack solr' do
   not_if "test -d #{node.solr.extracted}"
 end
 
-#  create log4j properties
-template "#{node.solr.extracted}/log4j.properties" do
-  source "log4j.properties.erb"
-  action :create_if_missing
-end
-
 bash "Add required solr lib and deps to the war file" do
   code <<-EOH
   mkdir -p /tmp/solr-temp/WEB-INF/lib
@@ -48,35 +38,37 @@ bash "Add required solr lib and deps to the war file" do
   cp #{node.solr.extracted}/example/lib/ext/* WEB-INF/lib
   cp #{node.solr.extracted}/dist/solr-dataimporthandler-* WEB-INF/lib
   cp #{node.solr.extracted}/log4j.properties WEB-INF/classes
-  jar -uvf #{node.solr.war} WEB-INF/lib 
-  jar -uvf #{node.solr.war} WEB-INF/classes 
+  jar -uvf #{node.solr.war} WEB-INF/lib
+  jar -uvf #{node.solr.war} WEB-INF/classes
   chmod +r #{node.solr.war}
   cd -
   rm -rf /tmp/solr-temp
   EOH
 end
 
-application node.solr.context_path do
-    path node.solr.home
-    owner node["tomcat"]["user"]
-    group node["tomcat"]["group"]
-    repository node.solr.war
-    revision     "HEAD"
-    scm_provider Chef::Provider::File::Deploy
+# Setup user/group
+poise_service_user "tomcat user" do
+  user "tomcat"
+  group "tomcat"
+  shell "/bin/bash"
+end
 
-    java_webapp do
-        context_template "solr.context.erb"
+cerner_tomcat node.solr.tomcat_instance do
+  web_app "solr" do
+    source "file://#{node.solr.war}"
+
+    template "META-INF/context.xml" do
+      source "solr.context.erb"
     end
-
-    tomcat
+  end
 end
 
 remote_directory node.solr.data do
   source       "solr"
-  owner        node.tomcat.user
-  group        node.tomcat.group
-  files_owner  node.tomcat.user
-  files_group  node.tomcat.group
+  owner        "tomcat"
+  group        "tomcat"
+  files_owner  "tomcat"
+  files_group  "tomcat"
   files_backup 0
   files_mode   "644"
   purge        true
@@ -87,8 +79,7 @@ remote_directory node.solr.data do
 end
 
 execute "change-permission-#{node.solr.data}" do
-  command "chown -R #{node.tomcat.user}:#{node.tomcat.group} #{node.solr.data}"
+  command "chown -R tomcat:tomcat #{node.solr.data}"
   user "root"
   action :nothing
 end
-
