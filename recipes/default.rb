@@ -54,7 +54,7 @@ poise_service_user "tomcat user" do
 end
 
 cerner_tomcat node.solr.tomcat_instance do
-  version "7.0.54"
+  version "8.5.27"
   web_app "solr" do
     source "file://#{node.solr.war}"
 
@@ -65,6 +65,7 @@ cerner_tomcat node.solr.tomcat_instance do
 
   java_settings("-Xms" => "512m",
                 "-D#{node.biodiv.appname}_CONFIG_LOCATION=".upcase => "#{node.biodiv.additional_config}",
+                "-D#{node.biodivApi.configname}".upcase => "#{node.biodivApi.additional_config}",
                 "-D#{node.fileops.appname}_CONFIG=".upcase => "#{node.fileops.additional_config}",
                 "-Dlog4jdbc.spylogdelegator.name=" => "net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator",
                 "-Dfile.encoding=" => "UTF-8",
